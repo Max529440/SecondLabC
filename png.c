@@ -4,10 +4,13 @@
 
 int initIHDR(IHDR *ihdr, FILE *fp)
 {
- if (fread(&(ihdr->width), sizeof(unsigned), 1, fp) != 1)
+ unsigned char buf4[4];
+ if (fread(buf4, sizeof(unsigned), 1, fp) != 1)
   return 0;
- if (fread(&(ihdr->height), sizeof(unsigned), 1, fp) != 1)
+ ihdr->width = bigEndian(buf4);
+ if (fread(buf4, sizeof(unsigned), 1, fp) != 1)
   return 0;
+ ihdr->height = bigEndian(buf4);
  if (fread(&(ihdr->bitDepth), sizeof(unsigned char), 1, fp) != 1)
   return 0;
  if (fread(&(ihdr->colourType), sizeof(unsigned char), 1, fp) != 1)
@@ -23,8 +26,10 @@ int initIHDR(IHDR *ihdr, FILE *fp)
 
 int initIDAT(IDAT *idat, FILE *fp)
 {
- if (fread(&(idat->offset), sizeof(unsigned), 1, fp) != 1)
+ unsigned char buf4[4];
+ if (fread(buf4, sizeof(unsigned), 1, fp) != 1)
   return 0;
+ idat->offset = bigEndian(buf4);
  unsigned buf;
  if (fread(&buf, sizeof(unsigned), 1, fp) != 1)
   return 0;
@@ -36,8 +41,9 @@ int initIDAT(IDAT *idat, FILE *fp)
  idat->data = malloc(sizeof(unsigned char) * idat->datasize);
  if (fread(&(idat->data), sizeof(unsigned char), idat->datasize, fp) != idat->datasize)
   return 0;
- if (fread(&(idat->checkValue), sizeof(unsigned), 1, fp) != 1)
+ if (fread(buf4, sizeof(unsigned), 1, fp) != 1)
   return 0;
+ idat->checkValue = bigEndian(buf4);
  return 1;
 }
 
@@ -52,10 +58,10 @@ int initPNG(PNG *png, char *filename)
   return 0;
  if (!initIHDR(&(png->ihdr), fp))
   return 0;
- if(!findIDAT(fp))
-    return 0;
- if(!initIDAT(&(png->idat), fp))
-    return 0;
+ if (!findIDAT(fp))
+  return 0;
+ if (!initIDAT(&(png->idat), fp))
+  return 0;
  fclose(fp);
  return 1;
 }
@@ -80,9 +86,11 @@ int findIHDR(FILE *fp)
  if (fread(buf, sizeof(unsigned char), 4, fp) != 4)
   return 0;
  unsigned char ihdr_tag[4] = {'I', 'H', 'D', 'R'};
- for (int i = 0; i < 8; i++)
+ for (int i = 0; i < 4; i++)
+ {
   if (ihdr_tag[i] != buf[i])
    return 0;
+ }
  return 1;
 }
 
@@ -93,13 +101,28 @@ int findIDAT(FILE *fp)
  unsigned char buf;
  while (1)
  {
-  if (fread(buf, sizeof(unsigned char), 1, fp) != 1)
+  if (fread(&buf, sizeof(unsigned char), 1, fp) != 1)
    return 0;
   if (buf == idat_tag[idat_tag_index])
    idat_tag_index++;
   else
    idat_tag_index = 0;
+  if (idat_tag_index == 4)
+   break;
  }
  fseek(fp, -8, SEEK_CUR);
  return 1;
+}
+
+unsigned bigEndian(unsigned char * bytes4)
+{
+ unsigned res = 0;
+ unsigned mult = 1;
+ for (int j = 0; j < 4; j++)
+ {
+  res += mult * bytes4[3 - j];
+  mult *= 255;
+ }
+
+ return res;
 }

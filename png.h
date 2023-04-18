@@ -39,4 +39,6 @@ int validSignature(FILE *fp);
 int findIHDR(FILE *fp);
 int findIDAT(FILE *fp);
 
+unsigned bigEndian(unsigned char * bytes4);
+
 #endif
