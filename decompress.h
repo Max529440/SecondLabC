@@ -7,6 +7,6 @@ typedef struct DecompressedData
  unsigned size;
 } DecompressedData;
 
-int decompress(unsigned char *src, unsigned srclen, DecompressedData *dst);
+int decompressData(unsigned char *src, unsigned srclen, DecompressedData *dst);
 
 #endif

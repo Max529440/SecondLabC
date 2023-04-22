@@ -17,11 +17,7 @@ typedef struct IHDR
 typedef struct IDAT
 {
     unsigned offset;
-    unsigned char deflateMethod;
-    unsigned char zlibFCheck;
-    unsigned datasize; // number of bytes for block. Calculating by offset: offset - 6
-    unsigned char *data;
-    unsigned checkValue;
+    unsigned char *toDecompress;
 } IDAT;
 
 typedef struct PNG
@@ -39,6 +35,6 @@ int validSignature(FILE *fp);
 int findIHDR(FILE *fp);
 int findIDAT(FILE *fp);
 
-unsigned bigEndian(unsigned char * bytes4);
+unsigned bigEndian(unsigned char *bytes4);
 
 #endif

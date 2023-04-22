@@ -1,7 +1,8 @@
 #include <zlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "png.h"
-#include "decompress.c"
+#include "decompress.h"
 
 int main()
 {
@@ -13,13 +14,24 @@ int main()
   exit(-1);
  }
  printf("png parsing: OK\n");
+ printf("bit depth = %d\n", png.ihdr.bitDepth);
+ printf("filter method = %d\n", png.ihdr.filterMethod);
+ printf("interlace method = %d\n", png.ihdr.interlaceMethod);
+ printf("colour type = %d\n", png.ihdr.colourType);
+ printf("compressDataSize = %u\n", png.idat.offset);
+ printf("compressed data:\n");
+ for (int i = 0; i < png.idat.offset; i++)
+ {
+  printf("%x\n", png.idat.toDecompress[i]);
+ }
+
  DecompressedData decompData;
- if (!decompress(png.idat.data, png.idat.datasize, &decompData))
+ if (!decompressData(png.idat.toDecompress, png.idat.offset, &decompData))
  {
   printf("zlib decompressing error\n");
   exit(-1);
  }
- printf("decompressed data:\n");
+ printf("decompressed data: size = %d\n", decompData.size);
  for (int i = 0; i < decompData.size; i++)
  {
   printf("%u\n", decompData.data[i]);
@@ -27,5 +39,4 @@ int main()
  return 0;
 }
 
-
-//clang main.c png.c decompress.c -l -o main
+// clang main.c png.c decompress.c -l -o main
