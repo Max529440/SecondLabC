@@ -36,5 +36,6 @@ int findIHDR(FILE *fp);
 int findIDAT(FILE *fp);
 
 unsigned bigEndian(unsigned char *bytes4);
+void freePNG(PNG * png);
 
 #endif

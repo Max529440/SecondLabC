@@ -8,5 +8,6 @@ typedef struct DecompressedData
 } DecompressedData;
 
 int decompressData(unsigned char *src, unsigned srclen, DecompressedData *dst);
+void freeDecompressedData(DecompressedData *decompData);
 
 #endif

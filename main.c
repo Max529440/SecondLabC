@@ -39,4 +39,4 @@ int main()
  return 0;
 }
 
-// clang main.c png.c decompress.c -l -o main
+// clang main.c png.c decompress.c row.c bitmap.c -l -o main

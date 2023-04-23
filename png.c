@@ -119,3 +119,9 @@ unsigned bigEndian(unsigned char *bytes4)
 
   return res;
 }
+
+void freePNG(PNG *png)
+{
+  if (png->idat.toDecompress)
+    free(png->idat.toDecompress);
+}
