@@ -31,7 +31,7 @@ unsigned char getBPP(unsigned char bitDepth, unsigned char colourType)
         break;
     }
 
-    return channels * bitDepth;
+    return channels * bitDepth / 8;
 }
 
 void filterRecover(RowData *rowData, RowData *priorRowData)

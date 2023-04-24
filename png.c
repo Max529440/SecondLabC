@@ -40,6 +40,22 @@ int initIDAT(IDAT *idat, FILE *fp)
   return 1;
 }
 
+int initPLTE(PLTE *plte, FILE *fp)
+{
+  plte->bytePerColor = 3;
+  unsigned char buf4[4];
+  if (fread(buf4, sizeof(unsigned), 1, fp) != 1)
+    return 0;
+  plte->size = bigEndian(buf4);
+  unsigned buf;
+  if (fread(&buf, sizeof(unsigned), 1, fp) != 1)
+    return 0;
+  plte->pallete = malloc(sizeof(unsigned char) * plte->size);
+  if (fread(plte->pallete, sizeof(unsigned char), plte->size, fp) != plte->size)
+    return 0;
+  return 1;
+}
+
 int initPNG(PNG *png, char *filename)
 {
   FILE *fp = fopen(filename, "rb");
@@ -51,6 +67,13 @@ int initPNG(PNG *png, char *filename)
     return 0;
   if (!initIHDR(&(png->ihdr), fp))
     return 0;
+  if (png->ihdr.colourType == 3)
+  {
+    if (!findPLTE(fp))
+      return 0;
+    if (!initPLTE(&(png->plte), fp))
+      return 0;
+  }
   if (!findIDAT(fp))
     return 0;
   if (!initIDAT(&(png->idat), fp))
@@ -107,6 +130,26 @@ int findIDAT(FILE *fp)
   return 1;
 }
 
+int findPLTE(FILE *fp)
+{
+  unsigned char plte_tag[4] = {0x50, 0x4C, 0x54, 0x45};
+  int idat_tag_index = 0;
+  unsigned char buf;
+  while (1)
+  {
+    if (fread(&buf, sizeof(unsigned char), 1, fp) != 1)
+      return 0;
+    if (buf == plte_tag[idat_tag_index])
+      idat_tag_index++;
+    else
+      idat_tag_index = 0;
+    if (idat_tag_index == 4)
+      break;
+  }
+  fseek(fp, -8, SEEK_CUR);
+  return 1;
+}
+
 unsigned bigEndian(unsigned char *bytes4)
 {
   unsigned res = 0;
@@ -124,4 +167,6 @@ void freePNG(PNG *png)
 {
   if (png->idat.toDecompress)
     free(png->idat.toDecompress);
+  if (png->plte.pallete)
+    free(png->plte.pallete);
 }

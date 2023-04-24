@@ -3,6 +3,13 @@
 
 #include <stdio.h>
 
+typedef struct PLTE
+{
+    unsigned char bytePerColor;
+    unsigned size;
+    unsigned char *pallete;
+} PLTE;
+
 typedef struct IHDR
 {
     unsigned width;
@@ -24,18 +31,21 @@ typedef struct PNG
 {
     FILE *fp;
     IHDR ihdr;
+    PLTE plte;
     IDAT idat;
 } PNG;
 
 int initIHDR(IHDR *ihdr, FILE *fp);
 int initIDAT(IDAT *idat, FILE *fp);
+int initPLTE(PLTE *plte, FILE *fp);
 int initPNG(PNG *png, char *filename);
 
 int validSignature(FILE *fp);
 int findIHDR(FILE *fp);
 int findIDAT(FILE *fp);
+int findPLTE(FILE *fp);
 
 unsigned bigEndian(unsigned char *bytes4);
-void freePNG(PNG * png);
+void freePNG(PNG *png);
 
 #endif
