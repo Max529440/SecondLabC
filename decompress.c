@@ -4,15 +4,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "return_codes.h"
 
 int decompressData(unsigned char *src, unsigned srclen, DecompressedData *dst)
 {
-    unsigned full_len = 1000000;
+    unsigned full_len = srclen;
     dst->data = (unsigned char *)calloc(sizeof(unsigned char), full_len);
     if (!dst->data)
     {
-        printf("can't allocate memory for dst\n");
-        return 0;
+        return ERROR_OUT_OF_MEMORY;
     }
 
     z_stream strm;
@@ -28,7 +28,7 @@ int decompressData(unsigned char *src, unsigned srclen, DecompressedData *dst)
     if (inflateInit(&strm) != Z_OK)
     {
         free(dst->data);
-        return 0;
+        return ERROR_DATA_INVALID;
     }
 
     while (!done)
@@ -38,15 +38,13 @@ int decompressData(unsigned char *src, unsigned srclen, DecompressedData *dst)
             dst->data = (unsigned char *)realloc(dst->data, strm.total_out);
             if (!dst->data)
             {
-                printf("can't allocate memory for dst\n");
-                return 0;
+                return ERROR_OUT_OF_MEMORY;
             }
         }
         strm.next_out = (unsigned char *)(dst->data + strm.total_out);
         strm.avail_out = full_len - strm.total_out;
 
         int err = inflate(&strm, Z_NO_FLUSH);
-        printf("%x\n", *(strm.next_in));
         if (err == Z_STREAM_END)
         {
             done = 1;
@@ -60,12 +58,12 @@ int decompressData(unsigned char *src, unsigned srclen, DecompressedData *dst)
     if (inflateEnd(&strm) != Z_OK)
     {
         free(dst->data);
-        return 0;
+        return ERROR_DATA_INVALID;
     }
 
     dst->size = strm.total_out;
 
-    return 1;
+    return SUCCESS;
 }
 
 void freeDecompressedData(DecompressedData *decompData)

@@ -7,7 +7,7 @@
 
 int main()
 {
-   char *filename = "/Users/maksimhimcenko/Desktop/454545.png";
+   char *filename = "/Users/maksimhimcenko/Desktop/9999.png";
    PNG png;
    if (!initPNG(&png, filename))
    {
@@ -75,7 +75,7 @@ int main()
    calcMaxColorValue(&bitmap);
    printf("maxColor = %u\n", bitmap.maxColorValue);
 
-   if(!writePNM(&bitmap, "2.pgm"))
+   if(!writePNM(&bitmap, "3.pgm"))
       printf("cannot write file\n");
    return 0;
 }

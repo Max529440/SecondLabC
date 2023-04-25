@@ -45,6 +45,7 @@ int findIHDR(FILE *fp);
 int findIDAT(FILE *fp);
 int findPLTE(FILE *fp);
 
+int supportedFormat(PNG *png);
 unsigned bigEndian(unsigned char *bytes4);
 void freePNG(PNG *png);
 

@@ -13,10 +13,10 @@ typedef struct RowData
  unsigned char *rawData;
 } RowData;
 
-void initRowData(RowData *rowData); // fields bitDepth, colourType, width, filterType and data must initialized
+int initRowData(RowData *rowData); // fields bitDepth, colourType, width, filterType and data must initialized
 unsigned char getBPP(unsigned char bitDepth, unsigned char colourType);
 void filterRecover(RowData *rowData, RowData *priorRowData);
-void filterRecoverNone(RowData *rowData);
+int filterRecoverNone(RowData *rowData);
 void filterRecoverSub(RowData *rowData);
 void filterRecoverUp(RowData *rowData, RowData *priorRowData);
 void filterRecoverAverage(RowData *rowData, RowData *priorRowData);

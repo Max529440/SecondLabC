@@ -1,12 +1,16 @@
 #include "row.h"
 #include <stdlib.h>
 #include <string.h>
+#include "return_codes.h"
 
-void initRowData(RowData *rowData)
+int initRowData(RowData *rowData)
 {
     rowData->bpp = getBPP(rowData->bitDepth, rowData->colourType);
     rowData->size = rowData->width * rowData->bpp;
     rowData->rawData = malloc(sizeof(unsigned char) * rowData->size);
+    if(!rowData->rawData)
+        return ERROR_OUT_OF_MEMORY;
+    return SUCCESS;
 }
 
 unsigned char getBPP(unsigned char bitDepth, unsigned char colourType)
@@ -56,7 +60,7 @@ void filterRecover(RowData *rowData, RowData *priorRowData)
     }
 }
 
-void filterRecoverNone(RowData *rowData)
+int filterRecoverNone(RowData *rowData)
 {
     memcpy(rowData->rawData, rowData->data, rowData->width * rowData->bpp);
 }
